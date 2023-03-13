@@ -12,8 +12,8 @@ setuptools.setup(
     description="This is a fork of the the original Bondify/gtfs_functions by Santiagpo Toso. A package specifically designed to speed up some frequent GTFS spatial analyses like mapping frequncies and speeds.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/Postea/gtfs_functions",
-    packages=['gtfs_functions'],
+    url="https://github.com/Postea/easy_gtfs",
+    packages=['easy_gtfs'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
