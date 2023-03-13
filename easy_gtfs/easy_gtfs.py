@@ -16,13 +16,17 @@ import utm
 from shapely.ops import nearest_points
 from shapely.geometry import Point, LineString, MultiLineString, MultiPoint
 from shapely.ops import split
-from shapely import geometry, ops
 import math
 import jenkspy
 import re
 import plotly.express as px
 import branca
 import folium
+
+
+# Convenience for the user, this package has many deprecated dependencies
+import warnings
+warnings.filterwarnings('ignore')
 
 
 def save_gdf(data, file_name, geojson=False, shapefile=True):
