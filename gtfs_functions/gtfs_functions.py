@@ -1,17 +1,31 @@
 # -*- coding: utf-8 -*-
 """
+Original:
 Created on Fri Jul 10 15:20:33 2020
 @author: santi
+
+Rewritten:
+@author: Postea
 """
+import zipfile
+import os
+import pandas as pd
+import partridge as ptg
+import geopandas as gpd
+import utm
+from shapely.ops import nearest_points
+from shapely.geometry import Point, LineString, MultiLineString, MultiPoint
+from shapely.ops import split
+from shapely import geometry, ops
+import math
+import jenkspy
+import re
+import plotly.express as px
+import branca
+import folium
 
 
 def save_gdf(data, file_name, geojson=False, shapefile=True):
-    import warnings
-
-    warnings.filterwarnings("ignore")
-    import zipfile
-    import os
-
     geojson_path = file_name + '.geojson'
     shape_path = file_name + '.shp'
     zip_path = file_name + '.zip'
@@ -54,24 +68,6 @@ def save_gdf(data, file_name, geojson=False, shapefile=True):
 
 
 def import_gtfs(gtfs_path, busiest_date=True):
-    import warnings
-
-    warnings.filterwarnings("ignore")
-    import os
-    import pandas as pd
-    import zipfile
-
-    try:
-        import partridge as ptg
-    except ImportError as e:
-        os.system('pip install partridge')
-        import partridge as ptg
-
-    try:
-        import geopandas as gpd
-    except ImportError as e:
-        os.system('pip install geopandas')
-        import geopandas as gpd
     # Partridge to read the feed
     # service_ids = pd.read_csv(gtfs_path + '/trips.txt')['service_id'].unique()
     # service_ids = frozenset(tuple(service_ids))
@@ -114,32 +110,6 @@ def import_gtfs(gtfs_path, busiest_date=True):
 
 
 def cut_gtfs(stop_times, stops, shapes):
-    import warnings
-
-    warnings.filterwarnings("ignore")
-    import os
-    import pandas as pd
-
-    # --------------------------------------------------------
-    os.system('apt install libspatialindex-dev')
-    os.system('pip install rtree')
-    # ----------------------------------------------------------
-    try:
-        import geopandas as gpd
-    except ImportError as e:
-        os.system('pip install geopandas')
-        import geopandas as gpd
-    try:
-        import utm
-    except ImportError as e:
-        os.system('pip install utm')
-        import utm
-
-    from shapely.ops import nearest_points
-    from shapely.geometry import Point, LineString, MultiLineString, MultiPoint
-    from shapely.ops import split
-    from shapely import geometry, ops
-
     # Get the right epsg code for later conversations
     shapes.crs = {'init': 'epsg:4326'}
 
@@ -863,19 +833,6 @@ def cut_gtfs(stop_times, stops, shapes):
 def speeds_from_gtfs(
     routes, stop_times, segments_gdf, cutoffs=[0, 6, 9, 15, 19, 22, 24]
 ):
-    import warnings
-
-    warnings.filterwarnings("ignore")
-    import pandas as pd
-    import math
-    import os
-
-    try:
-        import geopandas as gpd
-    except ImportError as e:
-        os.system('pip install geopandas')
-        import geopandas as gpd
-
     routes = routes
     stop_times = stop_times
 
@@ -1207,25 +1164,6 @@ def create_json(
         'Default',
     ],
 ):
-    import warnings
-
-    warnings.filterwarnings("ignore")
-
-    import os
-    import json
-    import pandas as pd
-
-    try:
-        import utm
-    except ImportError as e:
-        os.system('pip install utm')
-        import utm
-
-    try:
-        import jenkspy
-    except ImportError as e:
-        os.system('pip install jenkspy')
-        import jenkspy
     if symbol_layer:
         # All categorical variable layer thing
         # We start with Remix Lightrail colors and then add default colors from Plotly
@@ -1429,20 +1367,6 @@ def create_json(
 
 
 def stops_freq(stop_times, stops, cutoffs=[0, 6, 9, 15, 19, 22, 24]):
-    import warnings
-
-    warnings.filterwarnings("ignore")
-    import math
-    import pandas as pd
-    import os
-    import re
-
-    try:
-        import geopandas as gpd
-    except ImportError as e:
-        os.system('pip install geopandas')
-        import geopandas as gpd
-
     hours = list(range(25))
     hours_labels = [str(hours[i]) + ':00' for i in range(len(hours) - 1)]
 
@@ -1560,26 +1484,6 @@ def map_gdf(
     tooltip_labels=[],
     breaks=[],
 ):
-    import warnings
-
-    warnings.filterwarnings("ignore")
-    import branca
-    import pandas as pd
-    import os
-    import plotly.express as px
-
-    try:
-        import jenkspy
-    except ImportError as e:
-        os.system('pip install jenkspy')
-        import jenkspy
-
-    try:
-        import folium
-    except ImportError as e:
-        os.system('pip install folium')
-        import folium
-
     # Look for the center of the map
     minx, miny, maxx, maxy = gdf.geometry.total_bounds
 
@@ -1675,20 +1579,6 @@ def map_gdf(
 
 
 def lines_freq(stop_times, trips, shapes, routes, cutoffs=[0, 6, 9, 15, 19, 22, 24]):
-    import warnings
-
-    warnings.filterwarnings("ignore")
-    import math
-    import pandas as pd
-    import os
-    import re
-
-    try:
-        import geopandas as gpd
-    except ImportError as e:
-        os.system('pip install geopandas')
-        import geopandas as gpd
-
     # Generate the hours of the day
     hours = list(range(25))
     hours_labels = [str(hours[i]) + ':00' for i in range(len(hours) - 1)]
@@ -1841,20 +1731,6 @@ def lines_freq(stop_times, trips, shapes, routes, cutoffs=[0, 6, 9, 15, 19, 22, 
 
 
 def segments_freq(segments_gdf, stop_times, routes, cutoffs=[0, 6, 9, 15, 19, 22, 24]):
-    import warnings
-
-    warnings.filterwarnings("ignore")
-    import math
-    import pandas as pd
-    import os
-    import re
-
-    try:
-        import geopandas as gpd
-    except ImportError as e:
-        os.system('pip install geopandas')
-        import geopandas as gpd
-
     # Generate the hours of the day
     hours = list(range(25))
     hours_labels = [str(hours[i]) + ':00' for i in range(len(hours) - 1)]
@@ -2097,157 +1973,3 @@ def segments_freq(segments_gdf, stop_times, routes, cutoffs=[0, 6, 9, 15, 19, 22
     gdf.sort_values(by='frequency', ascending=False, inplace=True)
 
     return gdf
-
-
-def download_osm(gdf):
-    # Define the bounding box to query
-    bounds = gdf.geometry.total_bounds
-
-    # Build the query for overspass-api
-    overpass_url = "http://overpass-api.de/api/interpreter"
-    #     overpass_query = """
-    #     [out:json];
-    #     (way["highway"~"motorway|trunk|primary|secondary|tertiary|unclassified|residential|service|living_street"]
-    #     ["access"!~"private|no"]
-    #     ({0}, {1}, {2}, {3}););
-    #     out geom;
-    #     """.format(bounds[1], bounds[0], bounds[3], bounds[2])
-
-    overpass_query = """
-    [out:json];
-    (way["highway"~"motorway|trunk|primary|secondary|tertiary|unclassified|residential|service|living_street"]
-    ({0}, {1}, {2}, {3}););
-    out geom;
-    """.format(
-        bounds[1], bounds[0], bounds[3], bounds[2]
-    )
-
-    # Query overpass-api
-    response = requests.get(overpass_url, params={'data': overpass_query})
-
-    # Put the response in a DataFrame
-    data = response.json()
-    ways_df = pd.DataFrame(data['elements'])
-
-    # Parse the content in lists
-    node_ids = []
-    lat_lon = []
-    way_ids = []
-    oneway = []
-    segment_seq = []
-
-    n_nodes = [len(n) for n in list(ways_df.nodes)]
-
-    [node_ids.extend(n) for n in list(ways_df.nodes)]
-    [lat_lon.extend(g) for g in list(ways_df.geometry)]
-    [
-        way_ids.extend([ways_df.loc[i, 'id']] * n_nodes[i])
-        for i in range(0, len(ways_df))
-    ]
-    [
-        oneway.extend([ways_df.loc[i, 'tags'].get('oneway', '0')] * n_nodes[i])
-        for i in range(0, len(ways_df))
-    ]
-    [
-        segment_seq.extend(list(range(1, n_nodes[i] + 1)))
-        for i in range(0, len(ways_df))
-    ]  # segment sequence for that way_id
-
-    # Convert to int to save memory
-    oneway = [1 if s == 'yes' else s for s in oneway]
-    oneway = [0 if s in ['no', '0', 'reversible', '-1'] else s for s in oneway]
-    oneway = list(map(int, oneway))
-
-    # ------------------------------------------------------------------------------------
-    # ------------------------------ NODES -----------------------------------------------
-    # ------------------------------------------------------------------------------------
-
-    # Parse the json into a dataframe
-    nodes = pd.DataFrame()
-    nodes['way_id'] = way_ids
-    nodes['node_id'] = node_ids
-    nodes['oneway'] = oneway
-    nodes['segment_seq'] = segment_seq
-
-    # Get lat,lon values right
-    lat = [p['lat'] for p in lat_lon]
-    lon = [p['lon'] for p in lat_lon]
-
-    # Create points
-    points = [Point(lon[i], lat[i]) for i in range(0, len(lat))]
-
-    # Create GeoDataFrame
-    nodes_gdf = gpd.GeoDataFrame(data=nodes, geometry=points)
-
-    # ------------------------------------------------------------------------------------
-    # --------------------------- SEGMENTS -----------------------------------------------
-    # ------------------------------------------------------------------------------------
-
-    # Define our lists
-    # Does the node has the same way_id as the next node?
-    bool_list = nodes['way_id'] == nodes['way_id'].shift(-1)
-    # Nodes of the segment
-    segment_nodes = [
-        '{0} - {1}'.format(str(node_ids[i]), str(node_ids[i + 1]))
-        for i in range(0, len(node_ids) - 1)
-    ]
-    segment_ids = list(range(1, len(segment_nodes) + 1))
-    points_next = points[1:] + [None]
-
-    # Remove the last node of the segment (it is already in the last segment)
-    segment_nodes = list(compress(segment_nodes, bool_list))
-    segment_ids = list(compress(segment_ids, bool_list))
-    points = list(compress(points, bool_list))
-    points_next = list(compress(points_next, bool_list))
-    geometry = [
-        LineString([points[i], points_next[i]]) for i in range(0, len(segment_nodes))
-    ]
-
-    # Keep the segments and create the geo data frame
-    segments = nodes.loc[bool_list, ['way_id', 'oneway', 'segment_seq']]
-    segments['segment_nodes'] = segment_nodes
-    segments['osm_segment_id'] = segment_ids
-    segments_gdf = gpd.GeoDataFrame(data=segments, geometry=geometry)
-
-    # ------------------------------------------------------------------------------------
-    # --------------------------- ADD OPPOSITE SEGMENTS ----------------------------------
-    # ------------------------------------------------------------------------------------
-
-    # Create the opposite segments for two way streets
-    opposite = segments_gdf.loc[segments_gdf.oneway == 0].reset_index()
-
-    opp_nodes = [
-        '{0} - {1}'.format(
-            opposite.loc[i, 'segment_nodes'].split(' - ')[1],
-            opposite.loc[i, 'segment_nodes'].split(' - ')[0],
-        )
-        for i in range(0, len(opposite))
-    ]
-    opp_way_id = list(opposite.loc[:, 'way_id'])
-    opp_osm_segment_id = list(
-        range(
-            segments_gdf.osm_segment_id.max() + 1,
-            segments_gdf.osm_segment_id.max() + len(opposite) + 1,
-        )
-    )
-
-    opp_geom = opposite.geometry.apply(lambda x: LineString([x.coords[1], x.coords[0]]))
-
-    opp_df = pd.DataFrame()
-    opp_df['way_id'] = opp_way_id
-    opp_df['segment_nodes'] = opp_nodes
-    opp_df['oneway'] = 0
-    opp_df['osm_segment_id'] = opp_osm_segment_id
-    opp_df['segment_seq'] = 0
-
-    opp_gdf = gpd.GeoDataFrame(data=opp_df, geometry=opp_geom)
-
-    segments_gdf = segments_gdf.append(opp_gdf)
-
-    # Add "from" and "to" columns to make the graph generation easier
-    segments_gdf['from'] = [
-        int(s.split(' - ')[0]) for s in segments_gdf['segment_nodes']
-    ]
-    segments_gdf['to'] = [int(s.split(' - ')[1]) for s in segments_gdf['segment_nodes']]
-
-    return nodes_gdf, segments_gdf
